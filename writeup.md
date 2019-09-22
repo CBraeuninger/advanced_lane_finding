@@ -22,7 +22,7 @@ The steps of this project are the following:
 
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. To check if the detection of the corners on the chessboard was succesful, the corners can be drawn on a copy of the test images which are then stored in the output_images folder:
 
-![Image of chessboard with detected corners drawn on it](../output_images/chessboard_images/calibration2-corners.jpg)
+![Image of chessboard with detected corners drawn on it](output_images/chessboard_images/calibration2-corners.jpg)
 
 I then used the output `objpoints` and `imgpoints` to compute the camera matrix  and distortion coefficients using the `cv2.calibrateCamera()` function. 
 
