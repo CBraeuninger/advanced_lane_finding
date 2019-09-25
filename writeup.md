@@ -26,12 +26,22 @@ I start by preparing "object points", which will be the (x, y, z) coordinates of
 
 I then used the output `objpoints` and `imgpoints` to compute the camera matrix  and distortion coefficients using the `cv2.calibrateCamera()` function. 
 
-### Pipeline (single images)
 
-#### 1. Provide an example of a distortion-corrected image.
+### Undistort Images
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
+Once we have found the camera matrix and the distortion coefficients we can undistort the images using the `cv2.undistort()` function:
+
+<figure class="image">
+	<img src="camera_cal/calibration1.jpg" alt="Original image" 	width="300"/>
+	<figcaption>original image</figcaption>
+</figure>
+
+<figure class="image">
+	<img src="output_images/undistorted_images/calibration1-undist.jpg" 	alt="Undistorted image" width="300"/>
+	<figcaption>undistorted image</figcaption>
+</figure>
+
+
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
