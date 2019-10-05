@@ -17,7 +17,7 @@ images = glob.glob('../test_images/*.jpg')
 for file_name in images:
     
     img = mpimg.imread(file_name)
-    hls = hls_select(img, (120,255))
+    hls = hls_select(img, (185,255))
     #save images
     if not os.path.exists("../output_images/hls"):
         os.mkdir("../output_images/hls")
