@@ -83,8 +83,7 @@ def findPoints(lines, img_width, img_height):
     max_len_left = 0
     max_len_right = 0
     
-    #left_line = [[0],[0],[0],[0]]
-    #right_line = [[0],[0],[0],[0]]
+    # As source points take the endpoints of the longest identified line segments on the left and the right
     
     if lines is not None:
         for line in lines:
@@ -112,23 +111,23 @@ def findPoints(lines, img_width, img_height):
     #The four source points are the end points of the selected left and right line segments
     src =  np.float32([[left_line[0][0], left_line[0][1]], [left_line[0][2], left_line[0][3]],\
                        [right_line[0][0], right_line[0][1]], [right_line[0][2], right_line[0][3]]])
-    
-    #First destination point shall be at x = 10% image width and y = 10% image height
-    x1 = 0.1*img_width
-    y1 = 0.1*img_height
+        
+    #First destination point shall be at x = middle of the image - 0.5*distance of the lines
+    x1 = 0.5*img_width - 0.5*abs(right_line[0][0] - left_line[0][0])
+    y1 = img_height
     
     #Second point: Same x-coordinate and y-coordinate = y1 + max_len_left
     x2 = x1
-    y2 = y1 + max_len_left
+    y2 = y1 - max_len_left
     
-    #Third point (on right lane): x-coordinate = x1 + x-distance point 1 left lane - point 1 right lane
+    #Third point (on right lane): x-coordinate = x1 + distance of lines
     #y-coordinate = y1 + y-distance point 1 left lane - point 1 right lane
     x3 = x1 + abs(right_line[0][0] - left_line[0][0])
-    y3 = y1 + abs(right_line[0][1] - left_line[0][1])
+    y3 = abs(y1 - left_line[0][1] - right_line[0][1])
     
     #Fourth point: x-coordinate = x3, y-coordinate = y3 + max_len_right
     x4 = x3
-    y4 = y3 + max_len_right
+    y4 = abs(y3 - max_len_right)
     
     dst = np.float32([[x1, y1], [x2, y2], [x3, y3], [x4, y4]])
     

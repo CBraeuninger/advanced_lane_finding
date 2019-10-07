@@ -4,6 +4,8 @@ Created on 7 oct. 2019
 @author: cbraeuninger
 '''
 import numpy as np
+import cv2
+import matplotlib.pyplot as plt
 
 def findStartingPoints(img):
     '''
@@ -11,24 +13,15 @@ def findStartingPoints(img):
     '''
     
     #take a histogram of the image
-    histogram = np.sum(img, axis=0)
+    histogram = np.sum(img[:,:,0], axis=0)
     #find midpoint of histogram
     midpoint = np.int(histogram.shape[0]//2)
     leftx_base = np.argmax(histogram[:midpoint])
-    rightx_base = np.argmax(histogram[midpoint:])
+    rightx_base = np.argmax(histogram[midpoint:]) + midpoint
     
     return leftx_base, rightx_base
 
-def find_lane_pixels(binary_warped):
-    # Take a histogram of the bottom half of the image
-    histogram = np.sum(binary_warped[binary_warped.shape[0]//2:,:], axis=0)
-    # Create an output image to draw on and visualize the result
-    out_img = np.dstack((binary_warped, binary_warped, binary_warped))
-    # Find the peak of the left and right halves of the histogram
-    # These will be the starting point for the left and right lines
-    midpoint = np.int(histogram.shape[0]//2)
-    leftx_base = np.argmax(histogram[:midpoint])
-    rightx_base = np.argmax(histogram[midpoint:]) + midpoint
+def findLanePixels(img, leftx_base, rightx_base, visualize=False):
 
     # HYPERPARAMETERS
     # Choose the number of sliding windows
@@ -37,6 +30,9 @@ def find_lane_pixels(binary_warped):
     margin = 100
     # Set minimum number of pixels found to recenter window
     minpix = 50
+
+    # Take only one channel of RGB image and divide by 255 to make a binary image
+    binary_warped = img[:,:,0]/255
 
     # Set height of windows - based on nwindows above and image shape
     window_height = np.int(binary_warped.shape[0]//nwindows)
@@ -63,11 +59,12 @@ def find_lane_pixels(binary_warped):
         win_xright_low = rightx_current - margin
         win_xright_high = rightx_current + margin
         
-        # Draw the windows on the visualization image
-        cv2.rectangle(out_img,(win_xleft_low,win_y_low),
-        (win_xleft_high,win_y_high),(0,255,0), 2) 
-        cv2.rectangle(out_img,(win_xright_low,win_y_low),
-        (win_xright_high,win_y_high),(0,255,0), 2) 
+        if visualize:
+            # Draw the windows on the visualization image
+            cv2.rectangle(img,(win_xleft_low,win_y_low),
+            (win_xleft_high,win_y_high),(0,255,0), 2) 
+            cv2.rectangle(img,(win_xright_low,win_y_low),
+            (win_xright_high,win_y_high),(0,255,0), 2) 
         
         ### Identify the nonzero pixels in x and y within the window ###
         good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & 
@@ -79,7 +76,7 @@ def find_lane_pixels(binary_warped):
         left_lane_inds.append(good_left_inds)
         right_lane_inds.append(good_right_inds)
  
-        ### TO-DO: If you found > minpix pixels, recenter next window ###
+        ### If found > minpix pixels, recenter next window ###
         ### (`right` or `leftx_current`) on their mean position ###
         left_window = binary_warped[win_y_low:win_y_high, win_xleft_low:win_xleft_high]
         left_histogram = np.sum(left_window, axis=0)
@@ -89,7 +86,7 @@ def find_lane_pixels(binary_warped):
         right_window = binary_warped[win_y_low:win_y_high, win_xright_low:win_xright_high]
         right_histogram = np.sum(right_window, axis=0)
         if (sum(right_histogram)>minpix):
-            rightx_current = np.argmax(left_histogram)+win_xright_low
+            rightx_current = np.argmax(right_histogram)+win_xright_low
 
     # Concatenate the arrays of indices (previously was a list of lists of pixels)
     try:
@@ -104,36 +101,58 @@ def find_lane_pixels(binary_warped):
     lefty = nonzeroy[left_lane_inds] 
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
+    
+    img[lefty, leftx] = [255,0,0]
+    img[righty, rightx] = [0,0,255]
 
-    return leftx, lefty, rightx, righty, out_img
+    return leftx, lefty, rightx, righty, img
 
 
-def fit_polynomial(binary_warped):
+def fitPolynomial(img, visualize=False):
+    
+    #find starting points
+    leftx_base, rightx_base = findStartingPoints(img)
+    
     # Find our lane pixels first
-    leftx, lefty, rightx, righty, out_img = find_lane_pixels(binary_warped)
+    leftx, lefty, rightx, righty, out_img = findLanePixels(img, leftx_base, rightx_base, visualize)
 
-    ### TO-DO: Fit a second order polynomial to each using `np.polyfit` ###
+    ### Fit a second order polynomial to each lane ###
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
 
-    # Generate x and y values for plotting
-    ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0] )
-    try:
-        left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
-        right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
-    except TypeError:
-        # Avoids an error if `left` and `right_fit` are still none or incorrect
-        print('The function failed to fit a line!')
-        left_fitx = 1*ploty**2 + 1*ploty
-        right_fitx = 1*ploty**2 + 1*ploty
+    if visualize:
+        # Generate x and y values for plotting
+        lefty = np.linspace(0, out_img.shape[0]-1, out_img.shape[0], dtype='int')
+        righty = np.linspace(0, out_img.shape[0]-1, out_img.shape[0], dtype='int')
+        try:
+            left_fitx = (left_fit[0]*lefty**2 + left_fit[1]*lefty + left_fit[2]).astype(int)
+            right_fitx = (right_fit[0]*righty**2 + right_fit[1]*righty + right_fit[2]).astype(int)
+        except TypeError:
+            # Avoids an error if `left` and `right_fit` are still none or incorrect
+            print('The function failed to fit a line!')
+            left_fitx = (1*lefty**2 + 1*lefty).astype(int)
+            right_fitx = (1*righty**2 + 1*righty).astype(int)
+        
+        indToDelete = []
+        #remove points that are outside the image boundaries
+        for i in range(lefty.size):
+            if left_fitx[i]>=out_img.shape[1]:
+                indToDelete.append(i)
+                
+        lefty = np.delete(lefty, indToDelete)
+        left_fitx = np.delete(left_fitx, indToDelete)
+        
+        indToDelete = []
+                
+        for i in range(righty.size):
+            if right_fitx[i]>=out_img.shape[1]:
+                indToDelete.append(i)
+                
+        righty = np.delete(righty, indToDelete)
+        right_fitx = np.delete(right_fitx, indToDelete)            
 
-    ## Visualization ##
-    # Colors in the left and right lane regions
-    out_img[lefty, leftx] = [255, 0, 0]
-    out_img[righty, rightx] = [0, 0, 255]
+        # Plots the left and right polynomials on the lane lines
+        out_img[lefty, left_fitx] = [255,255,0]
+        out_img[righty, right_fitx] = [255,255,0]
 
-    # Plots the left and right polynomials on the lane lines
-    plt.plot(left_fitx, ploty, color='yellow')
-    plt.plot(right_fitx, ploty, color='yellow')
-
-    return out_img
+    return left_fit, right_fit, out_img

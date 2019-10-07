@@ -5,8 +5,6 @@ Created on 6 oct. 2019
 '''
 import glob
 import cv2
-import os
-import matplotlib.image as mpimg
 from PerspectiveTransform import houghLinesDetection, findPoints
 from VisualizationHelpers import drawDots, saveResultImage
 

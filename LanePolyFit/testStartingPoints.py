@@ -20,7 +20,7 @@ for file_name in images:
 
     leftx_base, right_xbase = findStartingPoints(img)
     
-    points = drawDots(img, (leftx_base,5))
-    points = drawDots(points, (right_xbase, 5), (0,0,255))
+    points = drawDots(img, (leftx_base,img.shape[0]-5))
+    points = drawDots(points, (right_xbase, img.shape[0]-5), (0,0,255))
     
     saveResultImage(points, "../output_images/starting_points", file_name, "-start", True)
