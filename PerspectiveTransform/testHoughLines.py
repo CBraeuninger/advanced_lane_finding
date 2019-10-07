@@ -5,9 +5,8 @@ Created on 6 oct. 2019
 '''
 import cv2
 import glob
-import os
-import matplotlib.image as mpimg
 from PerspectiveTransform import houghLinesDetection
+from VisualizationHelpers import saveResultImage
 
 
 #import images
@@ -28,11 +27,4 @@ for file_name in images:
         img = cv2.line(img, (line[0][0], line[0][1]), (line[0][2], line[0][3]), (255,0,0), 5)
         
     #save images
-    if not os.path.exists("../output_images/HoughLines"):
-        os.mkdir("../output_images/HoughLines")
-    #get filename of result image
-    (head, tail) = os.path.split(file_name)
-    (root, ext) = os.path.splitext(tail)
-    result_filename = os.path.join("../output_images/HoughLines", root + "-hough" + ext)
-    #save the result image
-    mpimg.imsave(result_filename, img, cmap='gray')
+    saveResultImage(img, "../output_images/HoughLines", file_name, "-hough", True)

@@ -4,10 +4,9 @@ Created on 6 oct. 2019
 @author: cbraeuninger
 '''
 import glob
-import os
-import matplotlib.image as mpimg
 import cv2
 from PerspectiveTransform import doPerspectiveTransform
+from VisualizationHelpers import saveResultImage
 
 
 #import images
@@ -21,11 +20,5 @@ for file_name in images:
 
     warped = doPerspectiveTransform(img)
     #save images
-    if not os.path.exists("../output_images/warped"):
-        os.mkdir("../output_images/warped")
-    #get filename of result image
-    (head, tail) = os.path.split(file_name)
-    (root, ext) = os.path.splitext(tail)
-    result_filename = os.path.join("../output_images/warped", root + "-warped" + ext)
-    #save the result image
-    mpimg.imsave(result_filename, warped, cmap='gray')
+    saveResultImage(warped, "../output_images/warped", file_name, "-warped", True)
+    

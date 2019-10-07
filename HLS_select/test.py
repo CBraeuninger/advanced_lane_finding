@@ -4,10 +4,9 @@ Created on 1 oct. 2019
 @author: cbraeuninger
 '''
 import glob
-import os
 import cv2
-import matplotlib.image as mpimg
 from HLS_select import hls_select
+from VisualizationHelpers import saveResultImage
 
 #import images
 #read in all images with names with pattern *.jpg
@@ -19,11 +18,4 @@ for file_name in images:
     img = cv2.imread(file_name)
     hls = hls_select(img, (185,255))
     #save images
-    if not os.path.exists("../output_images/hls"):
-        os.mkdir("../output_images/hls")
-    #get filename of result image
-    (head, tail) = os.path.split(file_name)
-    (root, ext) = os.path.splitext(tail)
-    result_filename = os.path.join("../output_images/hls", root + "-hls" + ext)
-    #save the result image
-    mpimg.imsave(result_filename, hls, cmap='gray')
+    saveResultImage(hls, "../output_images/hls", file_name, "-hls", True)

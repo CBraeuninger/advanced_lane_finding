@@ -13,6 +13,7 @@ from Camera_Calibration import calibrate_camera
 from Undistort_Image import undistort_image
 from HLS_select import hls_select
 from PerspectiveTransform import doPerspectiveTransform
+from VisualizationHelpers import saveResultImage
 
 #-------------------------------------------------------- first calibrate camera
 #get camera matrix and distortion coefficients
@@ -38,11 +39,4 @@ for file_name in images:
     warped = doPerspectiveTransform(hls)    
     
     #--------------------------------------------------------------- save images
-    if not os.path.exists("../output_images/final"):
-        os.mkdir("../output_images/final")
-    #get filename of result image
-    (head, tail) = os.path.split(file_name)
-    (root, ext) = os.path.splitext(tail)
-    result_filename = os.path.join("../output_images/final", root + "-final" + ext)
-    #save the result image
-    mpimg.imsave(result_filename, warped, cmap='gray')
+    saveResultImage(warped, "../output_images/final", file_name, "-final", True)
