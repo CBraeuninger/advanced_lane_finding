@@ -1,0 +1,9 @@
+Mean values for thresholds:
+Min. threshold x-gradient: '13.25'
+Max. threshold x-gradient: '243.875'
+Min. threshold y-gradient: '243.875'
+Max. threshold y-gradient: '243.875'
+Min. threshold gradient magnitude: '20.0'
+Max. threshold gradient magnitude: '241.25'
+Min. threshold gradient direction: '7.5'
+Max. threshold gradient direction: '244.5'

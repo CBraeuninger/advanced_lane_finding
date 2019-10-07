@@ -13,7 +13,7 @@ import cv2
 
 file_name = input("Give image path please:")
 img = mpimg.imread(file_name)
-hls = hls_select(img, (120,255))
+hls = hls_select(img, (120,255), 'rgb')
 
 # binary = np.zeros_like(hls, dtype='float32')
 # for (i,j), val in np.ndenumerate(binary):

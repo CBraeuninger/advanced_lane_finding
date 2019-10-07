@@ -7,27 +7,29 @@ Created on 6 oct. 2019
 import cv2
 import numpy as np
 import math
+from PIL import Image
 from prompt_toolkit.layout.processors import Transformation
 
-def houghLinesDetection(img):
+def houghLinesDetection(bin_img):
     '''
     Detect line segment in the lower part of the image (where the lane lines are)
     Returns a collection of line segments each described by the coordinates of their end points
     '''
     
-    #take lower half of the image
-#     half_size = int(round(0.5*img.shape[0]))
-#     img[:,:half_size] = 0
-
+    #transform input binary image to RGB and then to grayscale in order to be able to feed it into
+    #the HoughLinesP function
+    rgb = np.array(bin_img*255, dtype=np.uint8);
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
+    
     #mask image with trapezoid
-    masked_image = trapezoidMask(img)    
+    masked_image = trapezoidMask(gray)    
     
     #define parameters of Hough transform
     rho = 1 #this is the distance resolution of the accumulator in pixels
     theta = np.pi/180 #this is the angular resolution of the accumulator in pixels
     threshold = 7 #Accumulator threshold parameter. Only those lines are returned that get enough votes (>threshold)
     min_line_length = 25 #Minimum line length. Line segments shorter than that are rejected.
-    max_line_gap = 1 #Maximum allowed gap in between points considered to be on the same line.
+    max_line_gap = 5 #Maximum allowed gap in between points considered to be on the same line.
     
     lines = cv2.HoughLinesP(masked_image, rho, theta, threshold, np.array([]), minLineLength=min_line_length, maxLineGap=max_line_gap)
     
@@ -81,6 +83,9 @@ def findPoints(lines, img_width, img_height):
     max_len_left = 0
     max_len_right = 0
     
+    #left_line = [[0],[0],[0],[0]]
+    #right_line = [[0],[0],[0],[0]]
+    
     if lines is not None:
         for line in lines:
             #each line segment consists of two points that define the line, get their coordinates
@@ -96,7 +101,7 @@ def findPoints(lines, img_width, img_height):
             #If the slope is negative the line segment belongs to the left line
             #(the origin is in the upper left corner)
             #if it is longer than the current champion, set left_line to this line segment
-            if slope < 0 and length>max_len_left:
+            if slope <= 0 and length>max_len_left:
                 left_line = line
                 max_len_left = length
             #If the slope is positive, the line segment belongs to the right line
@@ -145,7 +150,8 @@ def warpImage(img, src, dst):
 def doPerspectiveTransform(img):
     
     '''
-    Detects source and destination points and the does the perspective transformation on a binary image
+    Detects source and destination points from a grayscale version of an image
+    and then does the perspective transformation of the image
     '''
     #get the lane lines
     lines = houghLinesDetection(img)
@@ -153,8 +159,11 @@ def doPerspectiveTransform(img):
     #Calculate source and destination points
     src, dst = findPoints(lines, img.shape[1], img.shape[0])
     
+    #mask image
+    masked = trapezoidMask(img)
+    
     #warp the image
-    warped = warpImage(img, src, dst)
+    warped = warpImage(masked, src, dst)
     
     return warped
     

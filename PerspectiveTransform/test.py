@@ -17,7 +17,8 @@ images = glob.glob('../output_images/hls/*.jpg')
 # loop over images and undistort them
 for file_name in images:
     
-    img = cv2.imread(file_name, 0)#optional argument 0 is needed to read the image as a greyscale image
+    img = cv2.imread(file_name)
+
     warped = doPerspectiveTransform(img)
     #save images
     if not os.path.exists("../output_images/warped"):

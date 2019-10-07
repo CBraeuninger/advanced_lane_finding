@@ -13,7 +13,7 @@ from PerspectiveTransform import houghLinesDetection, findPoints
 #read in all binary images with names with pattern *.jpg (output of hls selection)
 images = glob.glob('../output_images/hls/*.jpg')
 
-# loop over images and undistort them
+# loop over images
 for file_name in images:
 
     #read in example image

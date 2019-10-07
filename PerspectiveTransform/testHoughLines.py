@@ -18,15 +18,14 @@ images = glob.glob('../output_images/hls/*.jpg')
 for file_name in images:
 
     #read in example image
-    img = cv2.imread(file_name, 0)
+    img = cv2.imread(file_name)
     
     #detect lines using Hough algorithm
     lines = houghLinesDetection(img)
     
-    line_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
     #loop over all the lines and draw them on the image
     for line in lines:
-        line_img = cv2.line(line_img, (line[0][0], line[0][1]), (line[0][2], line[0][3]), (255,0,0), 5)
+        img = cv2.line(img, (line[0][0], line[0][1]), (line[0][2], line[0][3]), (255,0,0), 5)
         
     #save images
     if not os.path.exists("../output_images/HoughLines"):
@@ -36,4 +35,4 @@ for file_name in images:
     (root, ext) = os.path.splitext(tail)
     result_filename = os.path.join("../output_images/HoughLines", root + "-hough" + ext)
     #save the result image
-    mpimg.imsave(result_filename, line_img, cmap='gray')
+    mpimg.imsave(result_filename, img, cmap='gray')

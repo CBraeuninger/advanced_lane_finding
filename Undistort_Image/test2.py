@@ -1,5 +1,5 @@
 '''
-Created on 25 sept. 2019
+Created on 6 oct. 2019
 
 @author: cbraeuninger
 '''
@@ -13,7 +13,7 @@ from Undistort_Image import undistort_image
 mtx, dst = calibrate_camera()
 
 #read in all images with names with pattern calibration*.jpg
-images = glob.glob('../camera_cal/calibration*.jpg')
+images = glob.glob('../test_images/*.jpg')
 
 # loop over images and undistort them
 for file_name in images:
@@ -22,12 +22,12 @@ for file_name in images:
     # undistort image
     undist_img = undistort_image(img, mtx, dst)
     #save images
-    if not os.path.exists("../output_images/undistorted_cal_images"):
-        os.mkdir("../output_images/undistorted_cal_images")
+    if not os.path.exists("../output_images/undistorted_images"):
+        os.mkdir("../output_images/undistorted_images")
     #get filename of result image
     (head, tail) = os.path.split(file_name)
     (root, ext) = os.path.splitext(tail)
-    result_filename = os.path.join("../output_images/undistorted_cal_images", root + "-undist" + ext)
+    result_filename = os.path.join("../output_images/undistorted_images", root + "-undist" + ext)
 
     #save the result image
     mpimg.imsave(result_filename, undist_img)

@@ -1,3 +1,9 @@
+'''
+Created on 28 sept. 2019
+
+@author: cbraeuninger
+'''
+
 import cv2
 import numpy as np
 

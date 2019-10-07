@@ -7,7 +7,7 @@ import cv2
 from Gradient import combine_gradient
 
 class GradientParameterFinder:
-    def __init__(self, image, x_tr_min=20, x_tr_max=100, y_tr_min=20, y_tr_max=100, mag_tr_min=30, mag_tr_max=100, dir_tr_min=7, dir_tr_max=13):
+    def __init__(self, image, x_tr_min=0, x_tr_max=255, y_tr_min=0, y_tr_max=255, mag_tr_min=0, mag_tr_max=255, dir_tr_min=0, dir_tr_max=255):
         self.original = image
         self._x_tr_min = x_tr_min
         self._x_tr_max = x_tr_max

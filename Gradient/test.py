@@ -10,7 +10,7 @@ import os
 from Gradient import combine_gradient
 
 #import images
-#read in all images with names with pattern calibration*.jpg
+#read in all images with names with pattern *.jpg
 images = glob.glob('../test_images/*.jpg')
 
 # loop over images and undistort them
