@@ -1,0 +1,8 @@
+Image: ../output_images/final/test6-final.jpg, Curvature radius: '2064.591710299885' m
+Image: ../output_images/final/test1-final.jpg, Curvature radius: '3853.825418684502' m
+Image: ../output_images/final/straight_lines2-final.jpg, Curvature radius: '49068.30234287485' m
+Image: ../output_images/final/test2-final.jpg, Curvature radius: '523.9048999843703' m
+Image: ../output_images/final/test4-final.jpg, Curvature radius: '1230.0144646644162' m
+Image: ../output_images/final/straight_lines1-final.jpg, Curvature radius: '4710.98120771241' m
+Image: ../output_images/final/test3-final.jpg, Curvature radius: '8348.555733461091' m
+Image: ../output_images/final/test5-final.jpg, Curvature radius: '701.735066326642' m

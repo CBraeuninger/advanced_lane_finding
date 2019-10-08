@@ -21,7 +21,10 @@ def findStartingPoints(img):
     
     return leftx_base, rightx_base
 
-def findLanePixels(img, leftx_base, rightx_base, visualize=False):
+def findLanePixels(img, visualize=False):
+
+    #find starting points
+    leftx_base, rightx_base = findStartingPoints(img)
 
     # HYPERPARAMETERS
     # Choose the number of sliding windows
@@ -47,6 +50,10 @@ def findLanePixels(img, leftx_base, rightx_base, visualize=False):
     # Create empty lists to receive left and right lane pixel indices
     left_lane_inds = []
     right_lane_inds = []
+    
+    #initialize variables that will give us an indication of the length of the detected lane segment
+    l_left_seg = 0
+    l_right_seg = 0
 
     # Step through the windows one by one
     for window in range(nwindows):
@@ -69,8 +76,15 @@ def findLanePixels(img, leftx_base, rightx_base, visualize=False):
         ### Identify the nonzero pixels in x and y within the window ###
         good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & 
         (nonzerox >= win_xleft_low) &  (nonzerox < win_xleft_high)).nonzero()[0]
+        
+        if not good_left_inds.size == 0:
+            l_left_seg += 1
+        
         good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & 
         (nonzerox >= win_xright_low) &  (nonzerox < win_xright_high)).nonzero()[0]
+        
+        if not good_right_inds.size == 0:
+            l_right_seg += 1
         
         # Append these indices to the lists
         left_lane_inds.append(good_left_inds)
@@ -105,16 +119,10 @@ def findLanePixels(img, leftx_base, rightx_base, visualize=False):
     img[lefty, leftx] = [255,0,0]
     img[righty, rightx] = [0,0,255]
 
-    return leftx, lefty, rightx, righty, img
+    return leftx, lefty, rightx, righty, l_left_seg, l_right_seg, img
 
 
-def fitPolynomial(img, visualize=False):
-    
-    #find starting points
-    leftx_base, rightx_base = findStartingPoints(img)
-    
-    # Find our lane pixels first
-    leftx, lefty, rightx, righty, out_img = findLanePixels(img, leftx_base, rightx_base, visualize)
+def fitPolynomial(leftx, lefty, rightx, righty, visualize=False, img=np.array([],[])):
 
     ### Fit a second order polynomial to each lane ###
     left_fit = np.polyfit(lefty, leftx, 2)
@@ -122,8 +130,8 @@ def fitPolynomial(img, visualize=False):
 
     if visualize:
         # Generate x and y values for plotting
-        lefty = np.linspace(0, out_img.shape[0]-1, out_img.shape[0], dtype='int')
-        righty = np.linspace(0, out_img.shape[0]-1, out_img.shape[0], dtype='int')
+        lefty = np.linspace(0, img.shape[0]-1, img.shape[0], dtype='int')
+        righty = np.linspace(0, img.shape[0]-1, img.shape[0], dtype='int')
         try:
             left_fitx = (left_fit[0]*lefty**2 + left_fit[1]*lefty + left_fit[2]).astype(int)
             right_fitx = (right_fit[0]*righty**2 + right_fit[1]*righty + right_fit[2]).astype(int)
@@ -136,7 +144,7 @@ def fitPolynomial(img, visualize=False):
         indToDelete = []
         #remove points that are outside the image boundaries
         for i in range(lefty.size):
-            if left_fitx[i]>=out_img.shape[1]:
+            if left_fitx[i]>=img.shape[1]:
                 indToDelete.append(i)
                 
         lefty = np.delete(lefty, indToDelete)
@@ -145,14 +153,17 @@ def fitPolynomial(img, visualize=False):
         indToDelete = []
                 
         for i in range(righty.size):
-            if right_fitx[i]>=out_img.shape[1]:
+            if right_fitx[i]>=img.shape[1]:
                 indToDelete.append(i)
                 
         righty = np.delete(righty, indToDelete)
         right_fitx = np.delete(right_fitx, indToDelete)            
 
         # Plots the left and right polynomials on the lane lines
-        out_img[lefty, left_fitx] = [255,255,0]
-        out_img[righty, right_fitx] = [255,255,0]
+        img[lefty, left_fitx] = [255,255,0]
+        img[righty, right_fitx] = [255,255,0]
 
-    return left_fit, right_fit, out_img
+    return left_fit, right_fit, img
+
+    
+    
