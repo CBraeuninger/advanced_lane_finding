@@ -116,10 +116,12 @@ def findLanePixels(img, visualize=False):
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
     
-    img[lefty, leftx] = [255,0,0]
-    img[righty, rightx] = [0,0,255]
+    output_img = img.copy()
+    
+    output_img[lefty, leftx] = [255,0,0]
+    output_img[righty, rightx] = [0,0,255]
 
-    return leftx, lefty, rightx, righty, l_left_seg, l_right_seg, img
+    return leftx, lefty, rightx, righty, l_left_seg, l_right_seg, output_img
 
 
 def fitPolynomial(leftx, lefty, rightx, righty, visualize=False, img=np.array([],[])):
@@ -166,4 +168,14 @@ def fitPolynomial(leftx, lefty, rightx, righty, visualize=False, img=np.array([]
     return left_fit, right_fit, img
 
     
+def colorLanePixels(img, leftx, lefty, rightx, righty,):
     
+    pixImg = img.copy()
+    
+    #color image red where the left lane was detected
+    pixImg[lefty, leftx] = [255,0,0]
+    
+    #blue for the right lane line
+    pixImg[righty, rightx] = [0,0,255]
+    
+    return pixImg

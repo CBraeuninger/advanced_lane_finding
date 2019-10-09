@@ -9,7 +9,7 @@ from LanePolyFit import fitPolynomial, findLanePixels
 from VisualizationHelpers import saveResultImage
 
 #read in all binary images with names with pattern *.jpg (output of hls selection)
-images = glob.glob('../output_images/final/*.jpg')
+images = glob.glob('../output_images/warped/*.jpg')
 
 # loop over images
 for file_name in images:

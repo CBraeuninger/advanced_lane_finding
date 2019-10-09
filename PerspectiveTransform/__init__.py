@@ -74,7 +74,6 @@ def trapezoidMask(img):
     return masked_image
 
 
-
 def findPoints(lines, img_width, img_height):
     '''
     finds points on the lines as input for the perspective Transformation and defines destination points
@@ -120,14 +119,14 @@ def findPoints(lines, img_width, img_height):
     x2 = x1
     y2 = y1 - max_len_left
     
-    #Third point (on right lane): x-coordinate = x1 + distance of lines
+    #Fourth point (on right lane): x-coordinate = x1 + distance of lines
     #y-coordinate = y1 + y-distance point 1 left lane - point 1 right lane
-    x3 = x1 + abs(right_line[0][0] - left_line[0][0])
-    y3 = abs(y1 - left_line[0][1] - right_line[0][1])
+    x4 = x1 + abs(right_line[0][0] - left_line[0][0])
+    y4 = abs(y1 - left_line[0][1] - right_line[0][1])
     
-    #Fourth point: x-coordinate = x3, y-coordinate = y3 + max_len_right
-    x4 = x3
-    y4 = abs(y3 - max_len_right)
+    #Third point: x-coordinate = x3, y-coordinate = y3 + max_len_right
+    x3 = x4
+    y3 = abs(y4 - max_len_right)
     
     dst = np.float32([[x1, y1], [x2, y2], [x3, y3], [x4, y4]])
     
@@ -152,6 +151,7 @@ def doPerspectiveTransform(img):
     Detects source and destination points from a grayscale version of an image
     and then does the perspective transformation of the image
     '''
+    
     #get the lane lines
     lines = houghLinesDetection(img)
     
@@ -164,6 +164,7 @@ def doPerspectiveTransform(img):
     #warp the image
     warped = warpImage(masked, src, dst)
     
-    return warped
+    return warped, src, dst
+
     
         

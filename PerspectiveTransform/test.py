@@ -18,7 +18,7 @@ for file_name in images:
     
     img = cv2.imread(file_name)
 
-    warped = doPerspectiveTransform(img)
+    warped, src, dst = doPerspectiveTransform(img)
     #save images
     saveResultImage(warped, "../output_images/warped", file_name, "-warped", True)
     

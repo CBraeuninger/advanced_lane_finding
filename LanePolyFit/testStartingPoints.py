@@ -10,7 +10,7 @@ from VisualizationHelpers import drawDots, saveResultImage
 
 #import images
 #read in all binary images with names with pattern *.jpg (output of hls selection)
-images = glob.glob('../output_images/final/*.jpg')
+images = glob.glob('../output_images/warped/*.jpg')
 
 # loop over images
 for file_name in images:

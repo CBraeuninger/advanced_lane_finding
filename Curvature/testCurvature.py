@@ -8,7 +8,7 @@ import cv2
 from Curvature import realLaneCurvature
 
 #read in all binary images with names with pattern *.jpg (output of hls selection)
-images = glob.glob('../output_images/final/*.jpg')
+images = glob.glob('../output_images/warped/*.jpg')
 
 #open file to write curvatures
 file_obj = open("Curvatures.txt", 'w')
