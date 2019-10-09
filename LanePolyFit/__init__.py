@@ -127,21 +127,25 @@ def findLanePixels(img, visualize=False):
 def fitPolynomial(leftx, lefty, rightx, righty, visualize=False, img=np.array([],[])):
 
     ### Fit a second order polynomial to each lane ###
-    left_fit = np.polyfit(lefty, leftx, 2)
-    right_fit = np.polyfit(righty, rightx, 2)
+    try:
+        left_fit = np.polyfit(lefty, leftx, 2)
+    except TypeError:
+        print('The function failed to fit a line!')
+        left_fit = [1,1,0]
+      
+    try:   
+        right_fit = np.polyfit(righty, rightx, 2)
+    except TypeError:
+        print('The function failed to fit a line!')
+        right_fit = [1,1,0]
 
     if visualize:
         # Generate x and y values for plotting
         lefty = np.linspace(0, img.shape[0]-1, img.shape[0], dtype='int')
         righty = np.linspace(0, img.shape[0]-1, img.shape[0], dtype='int')
-        try:
-            left_fitx = (left_fit[0]*lefty**2 + left_fit[1]*lefty + left_fit[2]).astype(int)
-            right_fitx = (right_fit[0]*righty**2 + right_fit[1]*righty + right_fit[2]).astype(int)
-        except TypeError:
-            # Avoids an error if `left` and `right_fit` are still none or incorrect
-            print('The function failed to fit a line!')
-            left_fitx = (1*lefty**2 + 1*lefty).astype(int)
-            right_fitx = (1*righty**2 + 1*righty).astype(int)
+        
+        left_fitx = (left_fit[0]*lefty**2 + left_fit[1]*lefty + left_fit[2]).astype(int)
+        right_fitx = (right_fit[0]*righty**2 + right_fit[1]*righty + right_fit[2]).astype(int)
         
         indToDelete = []
         #remove points that are outside the image boundaries

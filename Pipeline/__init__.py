@@ -15,6 +15,7 @@ from HLS_select import hls_select
 from PerspectiveTransform import doPerspectiveTransform, warpImage
 from VisualizationHelpers import saveResultImage
 from LanePolyFit import findLanePixels, colorLanePixels
+from FinalImage import finalImage
 
 #-------------------------------------------------------- first calibrate camera
 #get camera matrix and distortion coefficients
@@ -34,19 +35,22 @@ for file_name in images:
     undist = undistort_image(img, mtx, dist_coeff)    
     
     #--- convert to hls color space and apply threshold to generate binary image
-    hls = hls_select(undist, (185,255), 'rgb')
+    hls = hls_select(undist, (185,255), 120, 'rgb')
     
     #-------------------------------------- transform to bird's eye perspective
     warped, src, dst = doPerspectiveTransform(hls)
     
     #------------------------------------------------------------ fit polynomial
-    retLanePix = findLanePixels(warped)
+    leftx, lefty, rightx, righty, l_left_seg, l_right_seg, output_img = findLanePixels(warped)
     
     #-------------------------------- color detected lane pixels in warped image
-    lanePixMarked = colorLanePixels(np.zeros_like(warped), retLanePix[0], retLanePix[1], retLanePix[2], retLanePix[3])
+    lanePix = colorLanePixels(np.zeros_like(warped), leftx, lefty, rightx, righty)
     
     #-------------------------------------------------------------- unwarp image
-    res_img = warpImage(lanePixMarked, dst, src)
+    lanePixUnwarped = warpImage(lanePix, dst, src)
+    
+    #superpose image of unwarped lane pixels image on original image and add curvature
+    res_img = finalImage(img, lanePixUnwarped, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg)
     
     #--------------------------------------------------------------- save images
-    saveResultImage(lanePixMarked, "../output_images/final", file_name, "-final", True)
+    saveResultImage(res_img, "../output_images/final", file_name, "-final", True)

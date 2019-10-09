@@ -23,7 +23,7 @@ for file_name in images:
     lines = houghLinesDetection(img)
     #get source and destination points
     src, dst = findPoints(lines, img.shape[1], img.shape[0])
-    
+        
     #Transform image to RGB
     dots_img = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
     

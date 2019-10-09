@@ -1,8 +1,8 @@
-Image: ../output_images/warped/straight_lines1-undist-hls-warped.jpg, Curvature radius: '1883.2624264437488' m
-Image: ../output_images/warped/test5-undist-hls-warped.jpg, Curvature radius: '5008.337740694947' m
-Image: ../output_images/warped/test3-undist-hls-warped.jpg, Curvature radius: '8816.629958482948' m
-Image: ../output_images/warped/test1-undist-hls-warped.jpg, Curvature radius: '1812.7874296117714' m
-Image: ../output_images/warped/test6-undist-hls-warped.jpg, Curvature radius: '2374.3547510536673' m
-Image: ../output_images/warped/straight_lines2-undist-hls-warped.jpg, Curvature radius: '3625.3121635800107' m
-Image: ../output_images/warped/test4-undist-hls-warped.jpg, Curvature radius: '595.5326457780233' m
-Image: ../output_images/warped/test2-undist-hls-warped.jpg, Curvature radius: '622.3514330649534' m
+Image: ../output_images/warped/straight_lines1-undist-hls-warped.jpg, Curvature radius: '113433.7628257911' m
+Image: ../output_images/warped/test5-undist-hls-warped.jpg, Curvature radius: '17483.71254888439' m
+Image: ../output_images/warped/test3-undist-hls-warped.jpg, Curvature radius: '17787.271596716077' m
+Image: ../output_images/warped/test1-undist-hls-warped.jpg, Curvature radius: '13593.79970475833' m
+Image: ../output_images/warped/test6-undist-hls-warped.jpg, Curvature radius: '35436.51023591851' m
+Image: ../output_images/warped/straight_lines2-undist-hls-warped.jpg, Curvature radius: '12596.494440509654' m
+Image: ../output_images/warped/test4-undist-hls-warped.jpg, Curvature radius: '241256.42304676594' m
+Image: ../output_images/warped/test2-undist-hls-warped.jpg, Curvature radius: '28891.76201220694' m

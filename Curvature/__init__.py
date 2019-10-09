@@ -3,7 +3,7 @@ Created on 7 oct. 2019
 
 @author: cbraeuninger
 '''
-from LanePolyFit import findLanePixels, fitPolynomial
+from LanePolyFit import fitPolynomial
 
 def calculateCurvature(fit, yeval, ym_per_pix):
           
@@ -15,15 +15,12 @@ def calculateCurvature(fit, yeval, ym_per_pix):
     return curvature
     
 
-def realLaneCurvature(img, yeval):
+def realLaneCurvature(img, yeval, leftx, lefty, rightx, righty, l_left_seg, l_right_seg):
     
     # Define conversions in x and y from pixels space to meters
     # Assuming the lane is about 30 meters long and 3.7 meters wide
     ym_per_pix = 30/img.shape[0] # meters per pixel in y dimension
     xm_per_pix = 3.7/img.shape[1] # meters per pixel in x dimension
-    
-    #find lane pixels
-    leftx, lefty, rightx, righty, l_left_seg, l_right_seg, img = findLanePixels(img)
     
     #fit polynomial
     left_fit, right_fit, img = fitPolynomial(leftx*xm_per_pix, lefty*ym_per_pix, rightx*xm_per_pix, righty*ym_per_pix)
