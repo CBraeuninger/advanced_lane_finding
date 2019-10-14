@@ -16,6 +16,6 @@ images = glob.glob('../output_images/undistorted_images/*.jpg')
 for file_name in images:
     
     img = cv2.imread(file_name)
-    hls = hls_select(img, (185,255))
+    hls = hls_select(img, (185,255), 120)
     #save images
     saveResultImage(hls, "../output_images/hls", file_name, "-hls", True)

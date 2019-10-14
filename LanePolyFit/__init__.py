@@ -6,6 +6,8 @@ Created on 7 oct. 2019
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import math
+from VideoPipeline import Fit
 
 def findStartingPoints(img):
     '''
@@ -124,20 +126,20 @@ def findLanePixels(img, visualize=False):
     return leftx, lefty, rightx, righty, l_left_seg, l_right_seg, output_img
 
 
-def fitPolynomial(leftx, lefty, rightx, righty, visualize=False, img=np.array([],[])):
+def fitPolynomial(leftx, lefty, rightx, righty, fit, visualize=False, img=np.array([],[])):
 
     ### Fit a second order polynomial to each lane ###
     try:
         left_fit = np.polyfit(lefty, leftx, 2)
     except TypeError:
         print('The function failed to fit a line!')
-        left_fit = [1,1,0]
+        left_fit = fit.get_l_fit()
       
     try:   
         right_fit = np.polyfit(righty, rightx, 2)
     except TypeError:
         print('The function failed to fit a line!')
-        right_fit = [1,1,0]
+        right_fit = fit.get_r_fit()
 
     if visualize:
         # Generate x and y values for plotting
@@ -171,8 +173,72 @@ def fitPolynomial(leftx, lefty, rightx, righty, visualize=False, img=np.array([]
 
     return left_fit, right_fit, img
 
+def searchAroundPoly(img, left_fit, right_fit):
+    # HYPERPARAMETER
+    # Choose the width of the margin around the previous polynomial to search
+    margin = 100
+
+    # Take only one channel of RGB image and divide by 255 to make a binary image
+    binary_warped = img[:,:,0]/255
     
-def colorLanePixels(img, leftx, lefty, rightx, righty,):
+    #Take left side of image
+    left_bw = binary_warped[:,:int(0.5*binary_warped.shape[1])]
+    right_bw = binary_warped[:,int(0.5*binary_warped.shape[1]):]
+
+    # Grab activated pixels
+    # We must do this seperately for left and right side of the image to avoid the pixel identification
+    # to "tilt" to one side
+    
+    left_nonzero = left_bw.nonzero()
+    left_nonzeroy = np.array(left_nonzero[0])
+    left_nonzerox = np.array(left_nonzero[1])
+    
+    right_nonzero = right_bw.nonzero()
+    right_nonzeroy = np.array(right_nonzero[0])
+    right_nonzerox = np.array(right_nonzero[1])
+    
+    ### Set the area of search based on activated x-values ###
+    ### within the +/- margin of our polynomial function ###
+    left_fit_func = np.poly1d(left_fit)
+    right_fit_func = np.poly1d(right_fit)
+    left_lane_inds = ((left_nonzerox>=left_fit_func(left_nonzeroy)-margin)&(left_nonzerox<left_fit_func(left_nonzeroy)+margin)).nonzero()[0]
+    right_lane_inds = ((right_nonzerox+0.5*binary_warped.shape[1]>=right_fit_func(right_nonzeroy)-margin)&(right_nonzerox+0.5*binary_warped.shape[1]<right_fit_func(right_nonzeroy)+margin)).nonzero()[0]
+    
+    # extract left and right line pixel positions
+    leftx = left_nonzerox[left_lane_inds]
+    lefty = left_nonzeroy[left_lane_inds] 
+    rightx = right_nonzerox[right_lane_inds] + int(0.5*binary_warped.shape[1])
+    righty = right_nonzeroy[right_lane_inds]
+        
+    #get an estimate which lane line is longer
+    if (leftx==0).all() or (lefty==0).all():
+        l_left_seg = 0
+    else:
+        l_left_seg = math.sqrt(leftx.max()**2 + lefty.max()**2)
+    if (rightx==0).all() or (righty==0).all():
+        l_right_seg = 0
+    else:
+        l_right_seg = math.sqrt(rightx.max()**2 + righty.max()**2)
+    
+    return leftx, lefty, rightx, righty, l_left_seg, l_right_seg
+
+def findLanes(img, fit):
+    
+    if (fit.get_l_fit() == np.array([0,0,0])).all() or (fit.get_r_fit() == np.array([0,0,0])).all():
+        
+        leftx, lefty, rightx, righty, l_left_seg, l_right_seg, output_img = findLanePixels(img, False)
+        left_fit, right_fit, img = fitPolynomial(leftx, lefty, rightx, righty, fit)
+        
+    else:
+        leftx, lefty, rightx, righty, l_left_seg, l_right_seg = searchAroundPoly(img, fit.get_l_fit(), fit.get_r_fit())
+        left_fit, right_fit, img = fitPolynomial(leftx, lefty, rightx, righty, fit)
+        
+    fit.set_l_fit(left_fit)
+    fit.set_r_fit(right_fit)
+        
+    return leftx, lefty, rightx, righty, l_left_seg, l_right_seg
+    
+def colorLanePixels(img, leftx, lefty, rightx, righty):
     
     pixImg = img.copy()
     

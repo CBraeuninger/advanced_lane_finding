@@ -50,7 +50,7 @@ for file_name in images:
     lanePixUnwarped = warpImage(lanePix, dst, src)
     
     #superpose image of unwarped lane pixels image on original image and add curvature
-    res_img = finalImage(img, lanePixUnwarped, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg)
+    res_img = finalImage(img, lanePixUnwarped, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg, src)
     
     #--------------------------------------------------------------- save images
     saveResultImage(res_img, "../output_images/final", file_name, "-final", True)

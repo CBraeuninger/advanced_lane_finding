@@ -16,6 +16,13 @@ def drawDots(dots_img, coordinates, color=(255,0,0), size = 5):
     
     return dots_img
 
+def addText(img, text, coordinates, color=(255,0,0)):
+    '''Adds text to the image at the coordinates specified
+    '''
+    img = cv2.putText(img, text, coordinates, cv2.FONT_HERSHEY_PLAIN, 1, color)
+    
+    return img
+
 def saveResultImage(img, output_path, old_filename, suffix, isGrayScale=False):
     '''
     saves image to directory, attaching suffix to its name
