@@ -8,7 +8,6 @@ import cv2
 import numpy as np
 import math
 from PIL import Image
-from prompt_toolkit.layout.processors import Transformation
 
 def houghLinesDetection(bin_img):
     '''
@@ -43,14 +42,15 @@ def trapezoidMask(img):
     
     Only keeps the region of the image defined by the polygon
     formed from `vertices`. The rest of the image is set to black.
-    `vertices` should be a numpy array of integer points.
     """
-    #defining a blank mask to start with
-    mask = np.zeros_like(img)
     
     #define vertices of region of interest
     ysize = img.shape[0]
     xsize = img.shape[1]
+    
+    #defining a blank mask to start with
+    mask = np.zeros_like(img)
+    tmask = np.ones_like(img)*255
     
     vertices = np.array([[(int(round(0.1*xsize)), ysize),\
                         (int(round(0.45*xsize)), int(round(0.55*ysize))),\
@@ -61,20 +61,32 @@ def trapezoidMask(img):
     #defining a 3 channel or 1 channel color to fill the mask with depending on the input image
     if len(img.shape) > 2:
         channel_count = img.shape[2]  # i.e. 3 or 4 depending on your image
-        ignore_mask_color = (255,) * channel_count #declare tuple with value 255 and length channel_count
+        keep_mask_color = (255,) * channel_count #declare tuple with value 255 and length channel_count
+        remove_mask_color = (0,) * channel_count
     else:
-        ignore_mask_color = 255
+        keep_mask_color = 255
+        remove_mask_color = 0
         
     #filling pixels inside the polygon defined by "vertices" with the fill color    
-    cv2.fillPoly(mask, vertices, ignore_mask_color)
+    cv2.fillPoly(mask, vertices, keep_mask_color)
     
     #returning the image only where mask pixels are nonzero
     masked_image = cv2.bitwise_and(img, mask)
     
+    #Also mask triangle in the middle/lower third of the image
+    tvertices = np.array([[(int(round(0.33*xsize)), ysize),\
+                           (int(round(0.5*xsize)), int(round(0.4*ysize))), \
+                           (int(round(0.66*xsize)), ysize)]], dtype=np.int32)
+    #defining the mask
+    cv2.fillPoly(tmask, tvertices, remove_mask_color)
+    
+    #mask color here has to be black (0,0,0) since we want to remove those pixels from the image
+    masked_image = cv2.bitwise_and(masked_image, tmask)
+    
     return masked_image
 
 
-def findPoints(lines, img_width, img_height):
+def findPoints(lines, img_width, img_height, lineFit):
     '''
     finds points on the lines as input for the perspective Transformation and defines destination points
     '''
@@ -113,27 +125,15 @@ def findPoints(lines, img_width, img_height):
     #if at least one line was found on the left side
     if not left_line is None:
         #Fit 1D polynomial to the two lines: y = mx + B
-        left_line_fit = np.polyfit([left_line[0][1], left_line[0][3]], [left_line[0][0], left_line[0][2]], 1)
-    
-    else:
-        #if no line was found, choose the following two points on the left side of the image
-        #and fit a line to them
-        #x1 = 15%image_width, y1 = image_height
-        #x2 = 45%image_width, y2 = 33%image_height
-        left_line_fit = np.polyfit([img_height, 0.33*img_height], [0.15*img_width, 0.45*img_width], 1)
+        lineFit.set_left_line_fit(np.polyfit([left_line[0][1], left_line[0][3]], [left_line[0][0], left_line[0][2]], 1))
     
     #make function
-    left_line_func = np.poly1d([left_line_fit[0], left_line_fit[1]])
+    left_line_func = np.poly1d([lineFit.get_left_line_fit()[0], lineFit.get_left_line_fit()[1]])
     
     if not right_line is None:
-        right_line_fit = np.polyfit([right_line[0][1], right_line[0][3]], [right_line[0][0], right_line[0][2]], 1)
-    else:
-        #fit line to the followig points:
-        #x1 = 85% image_width, y1 = image_height
-        #x2 = 55% image_width, y2 = 33% image_height
-        right_line_fit = np.polyfit([img_height, 0.33*img_height], [0.85*img_height, 0.55*img_height],1)
+        lineFit.set_right_line_fit(np.polyfit([right_line[0][1], right_line[0][3]], [right_line[0][0], right_line[0][2]], 1))
         
-    right_line_func = np.poly1d([right_line_fit[0], right_line_fit[1]])
+    right_line_func = np.poly1d([lineFit.get_right_line_fit()[0], lineFit.get_right_line_fit()[1]])
     
     #Source points:
     #1: value of left_line_fit at bottom of image
@@ -166,7 +166,7 @@ def warpImage(img, src, dst):
     
     return warped
 
-def doPerspectiveTransform(img):
+def doPerspectiveTransform(img, lineFit):
     
     '''
     Detects source and destination points from a grayscale version of an image
@@ -177,7 +177,7 @@ def doPerspectiveTransform(img):
     lines = houghLinesDetection(img)
     
     #Calculate source and destination points
-    src, dst = findPoints(lines, img.shape[1], img.shape[0])
+    src, dst = findPoints(lines, img.shape[1], img.shape[0], lineFit)
         
     #mask image
     masked = trapezoidMask(img)

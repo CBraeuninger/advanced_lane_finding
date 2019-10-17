@@ -4,7 +4,7 @@ Created on 13 oct. 2019
 @author: cbraeuninger
 '''
 
-from VideoPipeline.Fit import Fit, FitReal
+from VideoPipeline.Fit import Fit, FitReal, LineFit
 
 from moviepy.editor import VideoFileClip
 import numpy as np
@@ -30,7 +30,7 @@ def processImage(img):
     hls = hls_select(undist, (185,255), 120, 'rgb')
     
     #-------------------------------------- transform to bird's eye perspective
-    warped, src, dst = doPerspectiveTransform(hls)
+    warped, src, dst = doPerspectiveTransform(hls, lineFit)
     
     #------------------------------------------------------------ fit polynomial
     leftx, lefty, rightx, righty, l_left_seg, l_right_seg = findLanes(warped, fit)
@@ -54,6 +54,10 @@ video_name = 'project_video.mp4'
 
 #read in video
 clip1 = VideoFileClip("../"+video_name)
+
+vid_width, vid_height = clip1.size
+
+lineFit = LineFit(vid_width, vid_height)
 
 #process the frames with the lane detection pipeline
 processed_clip = clip1.fl_image(processImage) 
