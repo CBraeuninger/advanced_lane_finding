@@ -4,34 +4,61 @@ Created on 7 oct. 2019
 @author: cbraeuninger
 '''
 from LanePolyFit import fitPolynomial
+from VideoPipeline import config
+
+def getConversion(img_height, leftx_base, rightx_base):
+    # conversion factors for pixel/meters
+    # y-direction:
+    # the lane lines are about 30 m long
+    # in the perspective transform we take about half of that and project it to the warped image
+    ym_per_pix = 15/img_height
+    
+    # the lane is about 3.7 m wide
+    # in the warped image that corresponds to the number of pixels between the left and right lane
+    xm_per_pix = 3.7/(rightx_base - leftx_base)
+    
+    return ym_per_pix, xm_per_pix
 
 def calculateCurvature(fit, yeval, ym_per_pix):
           
     A = fit[0]
     B = fit[1]
     
-    curvature = (1+(2*A*yeval*ym_per_pix+B)**2)**1.5/abs(2*A)
+    curv = (1+(2*A*yeval*ym_per_pix+B)**2)**1.5/abs(2*A)
     
-    return curvature
+    return curv
     
 
-def realLaneCurvature(img, yeval, leftx, lefty, rightx, righty, l_left_seg, l_right_seg, fitReal):
-    
-    # Define conversions in x and y from pixels space to meters
-    # Assuming the lane is about 30 meters long and 3.7 meters wide
-    ym_per_pix = 30/img.shape[0] # meters per pixel in y dimension
-    xm_per_pix = 3.7/img.shape[1] # meters per pixel in x dimension
+def realLaneCurvature(yeval, leftx, lefty, rightx, righty, l_left_seg, l_right_seg, ym_per_pix, xm_per_pix):
     
     #fit polynomial
-    left_fit, right_fit, img = fitPolynomial(leftx*xm_per_pix, lefty*ym_per_pix, rightx*xm_per_pix, righty*ym_per_pix, fitReal)
+    left_fit, right_fit, img = fitPolynomial(leftx*xm_per_pix, lefty*ym_per_pix, rightx*xm_per_pix, righty*ym_per_pix, config.fitReal)
     
     #choose longer line segment and caculate curvature
     if l_right_seg > l_left_seg:
-        curvature = calculateCurvature(right_fit, yeval, ym_per_pix)
+        curv = calculateCurvature(right_fit, yeval, ym_per_pix)
     else:
-        curvature = calculateCurvature(left_fit, yeval, ym_per_pix)
+        curv = calculateCurvature(left_fit, yeval, ym_per_pix)
      
-    fitReal.set_l_fit(left_fit)
-    fitReal.set_r_fit(right_fit) 
+    config.fitReal.set_l_fit(left_fit)
+    config.fitReal.set_r_fit(right_fit) 
         
-    return curvature
+    return curv
+
+def distanceFromLane(img, src):
+    
+    #conversion factor for unwarped image
+    #
+    xm_per_pix = 3.7/(src[3][0]-src[0][0])
+    
+    #center of vehicle is at center of image
+    x_veh = img.shape[1]/2*xm_per_pix
+    
+    #calculate middle of lane line
+    x_middle = (0.5*src[0][0] + 0.5*src[3][0])*xm_per_pix
+    
+    #calculate offset
+    offset = x_middle - x_veh
+    
+    return offset
+    

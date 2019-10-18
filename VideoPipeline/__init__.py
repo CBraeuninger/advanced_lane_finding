@@ -3,9 +3,7 @@ Created on 13 oct. 2019
 
 @author: cbraeuninger
 '''
-
-from VideoPipeline.Fit import Fit, FitReal, LineFit
-
+from VideoPipeline.Fit import LineFit
 from moviepy.editor import VideoFileClip
 import numpy as np
 from Undistort_Image import undistort_image
@@ -21,6 +19,7 @@ def processImage(img):
     mtx = np.array([[1.15777818e+03, 0.00000000e+00, 6.67113857e+02], \
                     [0.00000000e+00, 1.15282217e+03, 3.86124583e+02], \
                    [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
+    
     dist_coeff = np.array([[-0.24688507, -0.02373155, -0.00109831,  0.00035107, -0.00259868]])
     
     #----------------------------------------------------------- undistort image
@@ -33,7 +32,7 @@ def processImage(img):
     warped, src, dst = doPerspectiveTransform(hls, lineFit)
     
     #------------------------------------------------------------ fit polynomial
-    leftx, lefty, rightx, righty, l_left_seg, l_right_seg = findLanes(warped, fit)
+    leftx, lefty, rightx, righty, l_left_seg, l_right_seg, leftx_base, rightx_base = findLanes(warped)
     
     #-------------------------------- color detected lane pixels in warped image
     lanePix = colorLanePixels(np.zeros_like(warped), leftx, lefty, rightx, righty)
@@ -41,13 +40,10 @@ def processImage(img):
     #-------------------------------------------------------------- unwarp image
     lanePixUnwarped = warpImage(lanePix, dst, src)
     
-    #superpose image of unwarped lane pixels image on original image and add curvature
-    res_img = finalImage(img, lanePixUnwarped, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg, src, fitReal)
+    # superpose image of unwarped lane pixels image on original image and add curvature
+    res_img = finalImage(img, lanePixUnwarped, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg, src, leftx_base, rightx_base)
     
     return res_img
-
-fit = Fit()
-fitReal = FitReal()
 
 #get video file name
 video_name = 'project_video.mp4'

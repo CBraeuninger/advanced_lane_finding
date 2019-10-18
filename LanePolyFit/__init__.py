@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import math
-from VideoPipeline import Fit
+from VideoPipeline import config
 
 def findStartingPoints(img):
     '''
@@ -23,10 +23,7 @@ def findStartingPoints(img):
     
     return leftx_base, rightx_base
 
-def findLanePixels(img, visualize=False):
-
-    #find starting points
-    leftx_base, rightx_base = findStartingPoints(img)
+def findLanePixels(img, leftx_base, rightx_base, visualize=False):
 
     # HYPERPARAMETERS
     # Choose the number of sliding windows
@@ -222,21 +219,25 @@ def searchAroundPoly(img, left_fit, right_fit):
     
     return leftx, lefty, rightx, righty, l_left_seg, l_right_seg
 
-def findLanes(img, fit):
+def findLanes(img):
     
-    if (fit.get_l_fit() == np.array([0,0,0])).all() or (fit.get_r_fit() == np.array([0,0,0])).all():
+    
+    #find starting points
+    leftx_base, rightx_base = findStartingPoints(img)
+    
+    if (config.fit.get_l_fit() == np.array([0,0,0])).all() or (config.fit.get_r_fit() == np.array([0,0,0])).all():
         
-        leftx, lefty, rightx, righty, l_left_seg, l_right_seg, output_img = findLanePixels(img, False)
-        left_fit, right_fit, img = fitPolynomial(leftx, lefty, rightx, righty, fit)
+        leftx, lefty, rightx, righty, l_left_seg, l_right_seg, output_img = findLanePixels(img, leftx_base, rightx_base, False)
+        left_fit, right_fit, img = fitPolynomial(leftx, lefty, rightx, righty, config.fit)
         
     else:
-        leftx, lefty, rightx, righty, l_left_seg, l_right_seg = searchAroundPoly(img, fit.get_l_fit(), fit.get_r_fit())
-        left_fit, right_fit, img = fitPolynomial(leftx, lefty, rightx, righty, fit)
+        leftx, lefty, rightx, righty, l_left_seg, l_right_seg = searchAroundPoly(img, config.fit.get_l_fit(), config.fit.get_r_fit())
+        left_fit, right_fit, img = fitPolynomial(leftx, lefty, rightx, righty, config.fit)
         
-    fit.set_l_fit(left_fit)
-    fit.set_r_fit(right_fit)
+    config.fit.set_l_fit(left_fit)
+    config.fit.set_r_fit(right_fit)
         
-    return leftx, lefty, rightx, righty, l_left_seg, l_right_seg
+    return leftx, lefty, rightx, righty, l_left_seg, l_right_seg, leftx_base, rightx_base
     
 def colorLanePixels(img, leftx, lefty, rightx, righty):
     

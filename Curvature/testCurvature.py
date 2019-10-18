@@ -5,7 +5,7 @@ Created on 8 oct. 2019
 '''
 import glob
 import cv2
-from Curvature import realLaneCurvature
+from Average import realLaneCurvature
 from LanePolyFit import findLanePixels
 
 #read in all binary images with names with pattern *.jpg (output of hls selection)
@@ -22,8 +22,8 @@ for file_name in images:
     leftx, lefty, rightx, righty, l_left_seg, l_right_seg, out_img = findLanePixels(img)
     
     #evaluate curvature at the bottom of the image (closest to the vehicle)
-    curvature = realLaneCurvature(img, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg)
+    curv = realLaneCurvature(img, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg)
     
-    file_obj.write("Image: " + file_name + ", Curvature radius: '{0}' m\n".format(curvature))
+    file_obj.write("Image: " + file_name + ", Average radius: '{0}' m\n".format(curv))
 
 file_obj.close()
