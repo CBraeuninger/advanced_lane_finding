@@ -5,7 +5,7 @@ Created on 1 oct. 2019
 '''
 import glob
 import cv2
-from HLS_select import hls_select
+from HLS_select import saturation_select
 from VisualizationHelpers import saveResultImage
 
 #import images
@@ -16,6 +16,6 @@ images = glob.glob('../output_images/undistorted_images/*.jpg')
 for file_name in images:
     
     img = cv2.imread(file_name)
-    hls = hls_select(img, (185,255), 120)
+    hls = saturation_select(img, (185,255), 120)
     #save images
     saveResultImage(hls, "../output_images/hls", file_name, "-hls", True)

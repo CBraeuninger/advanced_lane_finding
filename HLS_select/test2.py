@@ -5,7 +5,7 @@ Created on 1 oct. 2019
 '''
 
 import matplotlib.pyplot as plt
-from HLS_select import hls_select
+from HLS_select import saturation_select
 import matplotlib.image as mpimg
 import cv2
 #import numpy as np
@@ -13,7 +13,7 @@ import cv2
 
 file_name = input("Give image path please:")
 img = mpimg.imread(file_name)
-hls = hls_select(img, (120,255), 'rgb')
+hls = saturation_select(img, (120,255), 'rgb')
 
 # binary = np.zeros_like(hls, dtype='float32')
 # for (i,j), val in np.ndenumerate(binary):

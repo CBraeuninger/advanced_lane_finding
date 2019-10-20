@@ -29,7 +29,7 @@ def findLanePixels(img, leftx_base, rightx_base, visualize=False):
     # Choose the number of sliding windows
     nwindows = 9
     # Set the width of the windows +/- margin
-    margin = 100
+    margin = 50
     # Set minimum number of pixels found to recenter window
     minpix = 50
 
@@ -173,7 +173,7 @@ def fitPolynomial(leftx, lefty, rightx, righty, fit, visualize=False, img=np.arr
 def searchAroundPoly(img, left_fit, right_fit):
     # HYPERPARAMETER
     # Choose the width of the margin around the previous polynomial to search
-    margin = 100
+    margin = 50
 
     # Take only one channel of RGB image and divide by 255 to make a binary image
     binary_warped = img[:,:,0]/255

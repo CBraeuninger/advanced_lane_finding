@@ -7,10 +7,11 @@ from VideoPipeline.Fit import LineFit
 from moviepy.editor import VideoFileClip
 import numpy as np
 from Undistort_Image import undistort_image
-from HLS_select import hls_select
+from HLS_select import saturation_select
 from PerspectiveTransform import doPerspectiveTransform, warpImage
 from LanePolyFit import findLanes, colorLanePixels
 from FinalImage import finalImage
+from BinaryImage import createBinaryImage
 
 
 def processImage(img):
@@ -26,20 +27,20 @@ def processImage(img):
     undist = undistort_image(img, mtx, dist_coeff)    
     
     #--- convert to hls color space and apply threshold to generate binary image
-    hls = hls_select(undist, (185,255), 120, 'rgb')
+    hls = createBinaryImage(undist)
     
     #-------------------------------------- transform to bird's eye perspective
     warped, src, dst = doPerspectiveTransform(hls, lineFit)
-    
+     
     #------------------------------------------------------------ fit polynomial
     leftx, lefty, rightx, righty, l_left_seg, l_right_seg, leftx_base, rightx_base = findLanes(warped)
-    
+     
     #-------------------------------- color detected lane pixels in warped image
     lanePix = colorLanePixels(np.zeros_like(warped), leftx, lefty, rightx, righty)
-    
+     
     #-------------------------------------------------------------- unwarp image
     lanePixUnwarped = warpImage(lanePix, dst, src)
-    
+     
     # superpose image of unwarped lane pixels image on original image and add curvature
     res_img = finalImage(img, lanePixUnwarped, img.shape[0], leftx, lefty, rightx, righty, l_left_seg, l_right_seg, src, leftx_base, rightx_base)
     
