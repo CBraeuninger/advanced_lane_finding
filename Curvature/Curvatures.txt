@@ -1,8 +1,0 @@
-Image: ../output_images/warped/straight_lines1-undist-hls-warped.jpg, Curvature radius: '113433.7628257911' m
-Image: ../output_images/warped/test5-undist-hls-warped.jpg, Curvature radius: '17483.71254888439' m
-Image: ../output_images/warped/test3-undist-hls-warped.jpg, Curvature radius: '17787.271596716077' m
-Image: ../output_images/warped/test1-undist-hls-warped.jpg, Curvature radius: '13593.79970475833' m
-Image: ../output_images/warped/test6-undist-hls-warped.jpg, Curvature radius: '35436.51023591851' m
-Image: ../output_images/warped/straight_lines2-undist-hls-warped.jpg, Curvature radius: '12596.494440509654' m
-Image: ../output_images/warped/test4-undist-hls-warped.jpg, Curvature radius: '241256.42304676594' m
-Image: ../output_images/warped/test2-undist-hls-warped.jpg, Curvature radius: '28891.76201220694' m

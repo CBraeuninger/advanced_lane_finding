@@ -1,0 +1,8 @@
+Image: ../output_images/warped/straight_lines1-undist-hls-warped.jpg, Average radius: '33541.169680439205' m
+Image: ../output_images/warped/test5-undist-hls-warped.jpg, Average radius: '3330.331401497066' m
+Image: ../output_images/warped/test3-undist-hls-warped.jpg, Average radius: '4046.4236254439393' m
+Image: ../output_images/warped/test1-undist-hls-warped.jpg, Average radius: '1454.4097016926867' m
+Image: ../output_images/warped/test6-undist-hls-warped.jpg, Average radius: '3641.806910194712' m
+Image: ../output_images/warped/straight_lines2-undist-hls-warped.jpg, Average radius: '2528.56707415027' m
+Image: ../output_images/warped/test4-undist-hls-warped.jpg, Average radius: '3367.9707638761433' m
+Image: ../output_images/warped/test2-undist-hls-warped.jpg, Average radius: '2367.9324916295977' m
