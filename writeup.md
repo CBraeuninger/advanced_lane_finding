@@ -20,6 +20,8 @@ The steps of this project are the following:
 
 ### Camera Calibration
 
+Package: `camera_calibration`, function: `calibrate_camera`
+
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. To check if the detection of the corners on the chessboard was succesful, the corners can be drawn on a copy of the test images which are then stored in the output_images folder:
 
 ![Image of chessboard with detected corners drawn on it](output_images/chessboard_images/calibration2-corners.jpg)
@@ -29,6 +31,8 @@ I then used the output `objpoints` and `imgpoints` to compute the camera matrix 
 
 ### Undistort Images
 
+Package: `undistort`, function `undistort_image`
+
 Once we have found the camera matrix and the distortion coefficients we can undistort the images using the `cv2.undistort()` function:
 
 <figure class="image">
@@ -37,11 +41,26 @@ Once we have found the camera matrix and the distortion coefficients we can undi
 </figure>
 
 <figure class="image">
-	<img src="output_images/undistorted_images/calibration1-undist.jpg" 	alt="Undistorted image" width="300"/>
+	<img src="output_images/undistorted_cal_images/calibration1-undist.jpg" 	alt="Undistorted image" width="300"/>
 	<figcaption>undistorted image</figcaption>
 </figure>
 
-### HLS color transform
+### Create a binary image
+To create a binary image we use two distinct techniques:
+
+1. We take the gradient of the pixel values in the image and apply a threshold on it.
+2. We transform the image to the HLS color space and apply thresholds to the S- and L-channels.
+
+#### Taking the gradient
+Package: `gradient`, functions: `abs_sobel_threshold`, `mag_threshold`, `dir_threshold`, `combine_gradient`
+
+Using openCV's `cv2.Sobel()` function we take the gradient in x- and y-direction. From this we calculate:
+
+1. The absolute value of the gradient in x- and in y-direction (`abs_sobel_threshold`). Applying a threshold, we get two binary images `gradx` and `grady`.
+2. The magnitude of the gradient as defined as $\sqrt{x}$
+3. 
+
+#### HLS color transform
 
 The function `hls_select()` takes an image, transforms it to HLS color space and then applies an upper and lower threshold to the s-channel (saturation channel) to generate a binary image. This will single out the lane lines since they have higher saturation values than other parts of the image.
 
