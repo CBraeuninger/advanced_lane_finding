@@ -23,7 +23,7 @@ The steps of this project are the following:
 Package: `camera_calibration`		
 Function: `calibrate_camera`
 
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. To check if the detection of the corners on the chessboard was succesful, the corners can be drawn on a copy of the test images which are then stored in the output_images folder:
+We start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here we are assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time we successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. To check if the detection of the corners on the chessboard was succesful, the corners can be drawn on a copy of the test images which are then stored in the output_images folder:
 
 ![Image of chessboard with detected corners drawn on it](output_images/chessboard_images/calibration2-corners.jpg)
 
@@ -77,7 +77,7 @@ All three functions use the `cv2.Sobel()` method. The function `combine_gradient
 Package: `hls_select`		
 Function: `saturation_select`
 
-The function `saturation_select` takes an image, transforms it to HLS color space and then applies an upper and lower threshold to the s-channel (saturation channel) to generate a binary image. A second threshold is then applied to the l-channel (lightness channel) in order to set pixels that are not bright enough to zero. This will single out the lane lines since they have higher saturation and lightness values than other parts of the image.
+The function `saturation_select` takes an image, transforms it to HLS color space and then applies an upper and lower threshold to the S-channel (saturation channel) to generate a binary image. A second threshold is then applied to the L-channel (lightness channel) in order to set pixels that are not bright enough to zero. This will single out the lane lines since they have higher saturation and lightness values than other parts of the image.
 
 <figure class="image">
 	<img src="output_images/hls/test1-undist-hls.jpg" alt="HLS threshold 	binary image" width="500"/>
@@ -134,7 +134,7 @@ Functions: `find_starting_points`, `find_lane_pixels`, `search_around_poly`, `fi
 We can now identifiy the lane lines and fit a 2nd order polynomial to them (`find_lane_lines`):
 
 1. We must first identify points on the bottom of the image where to start our search for lane line pixels. To do so we calculate the histogram of the binary image along the x-axis and then take the x-values of the points where this histogram has a maximum on the left and on the right half of the image. This corresponds to the approximate position of the lane lines (`find_starting_points`).
-2. We than search for non-zero pixels in a small window around the starting point. When we have found enough of those pixels, we shift the window upwards, centering it on the x-value corresponding to the maximum of the histogram previous histogram (`find_lane_pixels`). If we have already fitted a polynomial before (i.e. in the previous frame of the video), we can use this polynomial to center the windows (`search_around_poly`).
+2. We than search for non-zero pixels in a small window around the starting point. When we have found enough of those pixels, we shift the window upwards, centering it on the x-value corresponding to the maximum of the histogram of the previous image (`find_lane_pixels`). If we have already fitted a polynomial before (i.e. in the previous frame of the video), we can use this polynomial to center the windows (`search_around_poly`).
 3. In both cases, we fit a 2nd order polynomial to the detected points (`fit_polynomial`).
 	<figure class"image">
 		<img src="output_images/polynomial/test1-undist-hls-warped-poly.jpg"
@@ -147,19 +147,31 @@ As you can see, the fit is not very good for short lane lines. We thus also retu
 The function `color_lane_pixels` returns an image with the detected pixels on the left line colored red, the detected pixels on the right line colored blue and all other pixel values set to zero. Using `warp_image` with source and destination points  interchanged, we can project these pixels on the perspective of the input image.
 
 
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+###Calculating the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+Package: `curvature`		
+Functions: `get_conversion`, `calculate_curvature`, `real_lane_curvature`, `distance_from_lane`
 
-#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
+We take the lane line points identified in the previous step, convert them from pixel space to real world space (`get_conversion`) and fit a polynomial also in real world space. From the parameters of this fit, we can calculate the curvature of the lane (`real_lane_curvature`). As can be seen in the above picture, the fit to short lane line segments is of low quality. We therefore select the longer lane line (using the return values `l_left_seg` and `l_right_seg` from `find_lanes`) and use only the corresponding fit for the curvature calculation.		
+We also calculate the distance of the middle of the car (assumed to coincide with the middle of the camera image) from the lane lines identified here by the two source points at the bottom of the image (`distance_from_lane`).	 		
+Both values are then averaged over 100 frames.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+### Final image
 
-![alt text][image6]
+Package: `final_image`
+Functions: `add_lane_lines`, `add_info`, `add_trapezoid`, `final_image`
+
+Finally we construct the image that will replace the frame in the video: we take the input image, add the identified lane line points (back-projected to the original perspective), the information about the curvature and the distance from the middle of the lane and a green trapezoid in between the identified lanes.
+<figure class"image">
+	<img src="output_images/final/straight_lines2-final.jpg"
+	alt="Final image"
+	"width="500" />
+	<figcaption>Final image</figcaption>
+</figure>
 
 ---
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./output_videos/project_video.mp4)
 
 ---
 
